@@ -43,7 +43,7 @@ public class CommandKeeper {
      * @param arg Аргумент команды или пустая строка, если аргумента нет
      * @return Комада, готовая к выполнению
      */
-    public static Executable getPreparedCommand(String name, String arg){
+    public static Executable getPreparedCommand(String name, String arg, User user){
 
         Executable result;
         name = name.toUpperCase();
@@ -53,13 +53,16 @@ public class CommandKeeper {
         else return null;
 
         if(result instanceof ExecutableWithRightsNeeded) {
-            Scanner scanner = new Scanner(System.in);
-            String login, password;
-            System.out.println("Введите логин:"); login = scanner.nextLine();
-            System.out.println("Введите пароль:");
-            //password = scanner.nextLine();
-            password = new String(System.console().readPassword());
-            ((ExecutableWithRightsNeeded) result).setUser(new User(login, User.getPasswordHash(password)));
+            if (user == null) {
+                Scanner scanner = new Scanner(System.in);
+                String login, password;
+                System.out.println("Введите логин:");
+                login = scanner.nextLine();
+                System.out.println("Введите пароль:");
+                password = new String(System.console().readPassword());
+                user = new User(login, User.getPasswordHash(password));
+            }
+            ((ExecutableWithRightsNeeded) result).setUser(user);
         }
 
         if(result instanceof ExecutableWithInput)((ExecutableWithInput)result).collectData(arg);

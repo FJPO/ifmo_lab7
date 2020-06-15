@@ -14,7 +14,7 @@ public class DataBaseHandler {
         try {
             Class.forName("org.postgresql.Driver");
             //"jdbc:postgresql://localhost:5432/postgres", "postgres", "\password"
-            connection = DriverManager.getConnection("jdbc:postgresql://pg/studs", "//", "//");
+            connection = DriverManager.getConnection("jdbc:postgresql://pg/studs", "s285700", new String(System.console().readPassword("Пароль:")));
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -29,10 +29,8 @@ public class DataBaseHandler {
                     " minimalpoint, tunedinworks, averagepoint, difficulty, author_name, author_height, author_loc_x," +
                     " author_loc_y, author_loc_z, creator) " +
                     "values (?, ?, ?, ?::timestamp, ?, ?, ?, ?::difficulty, ?, ?, ?, ?, ?, ?)");
-            stForId = connection.prepareStatement("select id from lab_works where name=? and coordinate_x=? and coordinate_y=?" +
-                    " and creation_date=?::timestamp and minimalpoint=? and tunedinworks=? and averagepoint=? and" +
-                    " difficulty=?::difficulty and author_name=? and author_height=? and author_loc_x=? and author_loc_y=? and author_loc_z=? and creator=?");
-            for (PreparedStatement st : new PreparedStatement[]{stToAdd, stForId}) {
+            stForId = connection.prepareStatement("select max(id) from lab_works");
+            for (PreparedStatement st : new PreparedStatement[]{stToAdd,}) {
                 st.setString(1, l.getName());
                 st.setFloat(2, l.getCoordinates().getX());
                 st.setFloat(3, l.getCoordinates().getY());
@@ -51,9 +49,10 @@ public class DataBaseHandler {
                 st.setString(14, l.getCreator().getLogin());
             }
             stToAdd.executeUpdate();
+            System.out.print("");
             ResultSet id = stForId.executeQuery();
-            id.next();
-            l.setId(id.getInt("id"));
+            if(!id.next()) System.out.println("Prob here");
+            l.setId(id.getInt(1));
 
 
         } catch (SQLException e) {

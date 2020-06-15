@@ -26,16 +26,14 @@ public class AddElement implements ExecutableWithInput, ExecutableWithRightsNeed
 
     @Override
     public void execute(List<LabWork> list) {
-        System.out.println("Начали");
         if(!DataBaseHandler.checkLoginAccuracy(user)){
             answer = "Неверный логин и пароль";
             return;
         }
         list.add(toAdd);
-        System.out.println("перед добавлением");
+
         DataBaseHandler.addLabWork(toAdd);
 
-        System.out.println("Добавлили");
         answer = "Новый элемент добавлен в коллекцию";
 
     }

@@ -3,6 +3,7 @@ package Lab7.ModuleClient;
 import Lab7.CommandsM.ExecuteScript;
 import Lab7.CommandsM.Exit;
 import Lab7.CommandsM.General.*;
+import Lab7.Sercurity.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -53,7 +54,24 @@ public class ClientSide {
                     commandName = line;
                     arg = "";
                 }
-                Executable command = CommandKeeper.getPreparedCommand(commandName, arg);
+                User user = null;
+                if("ADD".equals(commandName.toUpperCase())||"ADDIFMAX".equals(commandName.toUpperCase())||"UPDATE".equals(commandName.toUpperCase())){
+                    String login, password;
+                    System.out.println("Введите логин:"); login = scanner.nextLine();
+                    System.out.println("Введите пароль:");
+                    password = new String(System.console().readPassword());
+                    user = new User(login, User.getPasswordHash(password));
+                    sendObject(user);
+                    Object obj = receiveObject();
+                    if(obj instanceof Boolean)
+                        if((boolean)obj) System.out.println("Пользователь авторизирван");
+                        else {
+                            System.out.println("Невреный логин или пароль");
+                            continue;
+                        }
+                    else System.err.println("Внутренняя ошибка программы");
+                } else user = null;
+                Executable command = CommandKeeper.getPreparedCommand(commandName, arg, user);
                 if(command == null){
                     System.out.println("Команда не найдена");
                     continue;

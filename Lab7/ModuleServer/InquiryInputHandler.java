@@ -2,6 +2,7 @@ package Lab7.ModuleServer;
 
 import Lab7.CommandsM.Exit;
 import Lab7.CommandsM.General.Executable;
+import Lab7.Sercurity.User;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -22,7 +23,14 @@ public class InquiryInputHandler implements Runnable {
 
             while (!channel.socket().isClosed()) {
                 Object object = receiveObject();
-                if (!(object instanceof Executable)) continue;
+                if (!(object instanceof Executable))
+                    if(object instanceof User){
+                        ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+                        ObjectOutputStream stream = new ObjectOutputStream(byteArray);
+                        stream.writeObject(DataBaseHandler.checkLoginAccuracy((User)object));
+                        channel.write(ByteBuffer.wrap(byteArray.toByteArray()));
+                        continue;
+                    } else continue;
                 ServerSide.processingInquiryPool.execute(new InquiryProcessingHandler((Executable) object, channel));
                 if(object instanceof Exit) break;
             }
